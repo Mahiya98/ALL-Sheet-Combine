@@ -1,86 +1,733 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opex Document Links</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-        }
-        h1 {
-            text-align: center;
-        }
-        h2 {
-            margin-top: 30px;
-        }
-        ul {
-            list-style-type: none;
-            padding: 0;
-        }
-        li {
-            margin-bottom: 10px;
-        }
-        a {
-            text-decoration: none;
-            color: #0066cc;
-        }
-        a:hover {
-            text-decoration: underline;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Opex Document Hub</title>
+<style>
+:root {
+  --navy: #0b2545;
+  --navy-light: #13315c;
+  --accent: #2f6fed;
+  --accent-soft: #eaf1ff;
+  --text-main: #1c2430;
+  --text-muted: #5b6472;
+  --border: #e3e7ee;
+  --bg: #f5f7fb;
+  --card-bg: #ffffff;
+  --radius: 10px;
+  --shadow: 0 1px 2px rgba(16, 24, 40, 0.06), 0 1px 3px rgba(16, 24, 40, 0.08);
+  --shadow-hover: 0 4px 12px rgba(16, 24, 40, 0.12);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text-main);
+}
+
+.hub-header {
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  color: #fff;
+  padding: 36px 24px 24px;
+}
+
+.header-inner {
+  max-width: 1100px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.hub-header h1 {
+  margin: 0 0 6px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+.subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.75);
+}
+
+.search-wrap {
+  max-width: 480px;
+  margin: 20px auto 0;
+}
+
+#searchInput {
+  width: 100%;
+  padding: 11px 16px;
+  border-radius: 999px;
+  border: none;
+  font-size: 14px;
+  outline: none;
+  box-shadow: var(--shadow);
+}
+
+#searchInput:focus {
+  box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.45);
+}
+
+.tab-bar {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: flex;
+  gap: 6px;
+  padding: 18px 24px 0;
+  flex-wrap: wrap;
+}
+
+.tab-btn {
+  border: 1px solid var(--border);
+  background: var(--card-bg);
+  color: var(--text-muted);
+  padding: 10px 18px;
+  border-radius: 999px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.tab-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.tab-btn.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.content {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+.panel {
+  display: none;
+  animation: fadeIn 0.2s ease;
+}
+
+.panel.active {
+  display: block;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.panel h2 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 4px 0 16px;
+  color: var(--navy);
+}
+
+.card-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 14px;
+}
+
+.doc-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px;
+  text-decoration: none;
+  color: var(--text-main);
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, border-color 0.12s ease;
+}
+
+.doc-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+  border-color: var(--accent);
+}
+
+.doc-card.wide {
+  grid-column: span 1;
+}
+
+.badge {
+  flex-shrink: 0;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-size: 11.5px;
+  font-weight: 700;
+  padding: 5px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.3px;
+}
+
+.doc-title {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.35;
+}
+
+.doc-card.hidden {
+  display: none;
+}
+
+.no-results {
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 14px;
+  padding: 40px 0;
+  display: none;
+}
+
+.hub-footer {
+  text-align: center;
+  padding: 24px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+}
+
+/* QCP Audit tab */
+.tab-btn-accent {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.qcp-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  box-shadow: var(--shadow);
+  margin-bottom: 14px;
+}
+
+.qcp-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-width: 160px;
+}
+
+.qcp-field label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.qcp-field select,
+.qcp-field input[type="date"] {
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 13.5px;
+  color: var(--text-main);
+  background: #fff;
+}
+
+.qcp-field select:focus,
+.qcp-field input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.18);
+}
+
+.qcp-btn-primary {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 10px 22px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.qcp-btn-primary:hover {
+  background: #2159c9;
+}
+
+.qcp-quick-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+
+.qcp-chip {
+  border: 1px solid var(--border);
+  background: #fff;
+  color: var(--text-muted);
+  padding: 7px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.qcp-chip:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.qcp-chip.active {
+  background: var(--navy);
+  border-color: var(--navy);
+  color: #fff;
+}
+
+.qcp-status {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  padding: 12px 2px;
+}
+
+.qcp-status.error {
+  color: #c0392b;
+}
+
+.qcp-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.stat-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+
+.stat-label {
+  font-size: 12.5px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 34px;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.stat-sub {
+  font-size: 12.5px;
+  color: var(--text-muted);
+  margin-top: 6px;
+}
+
+.stat-card.stat-pass .stat-value { color: #1e8a4c; }
+.stat-card.stat-fail .stat-value { color: #c0392b; }
+
+
+</style>
 </head>
 <body>
-    <h1>Opex Document Links</h1>
 
-    <h2>5s, IC/PC Card</h2>
-    <ul>
-        <li><a href="https://docs.google.com/spreadsheets/d/1QlYsVi807awN3kZv4_ASQ6B_xFBRPCqPoDRd8aD7sLd/edit#gid=1800369424" target="_blank">AAPL</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1P5m29zELKwYwx2QKWo-gVNssYGLPL3HuJeP94fQ2F0/edit#gid=233139912" target="_blank">AFFIL</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/15uYkpSoKG85sYLNd1SKHl5GkP_RtXQYdRXL4aMolod0/edit#gid=360403345" target="_blank">MRML</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1fKuCRtyEvUlmEPCFU0q31HDwNath_O6Kj0nsqeHaF3vj/edit#gid=233139912" target="_blank">AEL</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1th-LASaw9ifit4rODdliHnInGY9al9pCm1nDBS54Ptc/edit#gid=360403345" target="_blank">KRAL</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1An_1mFG98xNL4k-86BR@_ZvBQeyZRMn4WcCVeylNyaI/edit#gid=sharing" target="_blank">AIL</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1ACCL" target="_blank">ACCL</a></li>
-    </ul>
+  <header class="hub-header">
+    <div class="header-inner">
+      <h1>Opex Document Hub</h1>
+      <p class="subtitle">Quick access to 5S / IC-PC cards, master data, cost calculation and project sheets</p>
+    </div>
+    <div class="search-wrap">
+      <input type="text" id="searchInput" placeholder="Search a document or SBU (e.g. AAFL, Kaizen)...">
+    </div>
+  </header>
 
-    <h2>Project</h2>
-    <ul>
-        <li>Qcp - Supabase - qcp_audit - <a href="https://docs.google.com/spreadsheets/d/1jQKHWCkqVtEnQ78dEFQeStunPufifoI1huSSdsNbX0/edit#gid=1943254047" target="_blank">ACCL</a></li>
-        <li>5s - Supabase - acct_5s_audit_entries - <a href="https://docs.google.com/spreadsheets/d/1NUrdu9kb3QCT_LZsGBLYzee-GHEakjVr8hlz-SqpUI0/edit#gid=1943254047" target="_blank">AFFIL</a></li>
-        <li>Kaizen - Supabase - acct_improvement_cards - <a href="https://docs.google.com/spreadsheets/d/1K9DxX1AnmmR1cS2wgXOSzmV1TKK5ImOlnhNtqf4CWn-0/edit#gid=1943254047" target="_blank">AAFL</a></li>
-        <li>Cost Calculation - Supabase - kaizen_combined - <a href="https://docs.google.com/spreadsheets/d/1w7OJCL45x0l0pXDqW8Ba-ZT_OCT_4nMu9lcVFS970/edit#gid=1943254047" target="_blank">AEFML</a></li>
-        <li>Problem Solving - Supabase - acct_problem_solving_cards - <a href="https://docs.google.com/spreadsheets/d/1XsEqWxyB-MuVvBK0xOpM9jmvn1tXq04R5OtupedfFgid=1943254047" target="_blank">MRML</a></li>
-        <li>Project - acct_projects - <a href="https://docs.google.com/spreadsheets/d/1DzhYALfcrkl2PdUwRR_gqlBKpyzNbpcolUMZ14fwFiM/edit#gid=1943254047" target="_blank">AIL</a></li>
-    </ul>
+  <nav class="tab-bar" id="tabBar">
+    <button class="tab-btn active" data-section="fives">5S / IC-PC Card</button>
+    <button class="tab-btn" data-section="master">Combined Master Data</button>
+    <button class="tab-btn" data-section="cost">Cost Calculation</button>
+    <button class="tab-btn" data-section="projects">Projects</button>
+    <button class="tab-btn tab-btn-accent" data-section="qcp">QCP Audit</button>
+  </nav>
 
-    <h2>Combined Master Data</h2>
-    <ul>
-        <li><a href="https://docs.google.com/spreadsheets/d/1m5iZEqFcpO8OayV88xTnHhFiiMipkI9OsxBCSrcgAnjdA=gid=0" target="_blank">All Kaizen, Problem solving and Cost , Master Data</a></li>
-    </ul>
+  <main class="content">
 
-    <h2>Cost Calculation</h2>
-    <ul>
-        <li><a href="https://docs.google.com/spreadsheets/d/1gpW8XJACOcSq8cXodYoxLE8lAnzw3c4rtm20V20guI0/edit#gid=1520142132" target="_blank">AAPL Cost Calculation</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1QWYvNBI7awN3kZv4_ASQ6B_xFDRPCqPoDRd8aD7sLd" target="_blank">AIL Cost Calculation</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1QWYvNBI7awN3kZv4_ASQ6B_xFDRPCqPoDRd8aD7sLd" target="_blank">MRML Cost Calculation</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/15uYkpSoKG85sYLNd1SKHl5GkP_RtXQYdRXL4aMolod0/edit#gid=360403345" target="_blank">AAFL Cost Calculation</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1fKuCRtyEvUlmEPCFU0q31HDwNath_O6Kj0nsqeHaF3vj/edit#gid=233139912" target="_blank">AFFIL Cost Calculation</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1th-LASaw9ifit4rODdliHnInGY9al9pCm1nDBS54Ptc/edit#gid=360403345" target="_blank">AEFML Cost Calculation</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1An_1mFG98xNL4k-86BR@_ZvBQeyZRMn4WcCVeylNyaI/edit#gid=sharing" target="_blank">KRAL Cost Calculation</a></li>
-        <li><a href="https://docs.google.com/spreadsheets/d/1ACCL" target="_blank">ACCL Cost Calculation</a></li>
-    </ul>
+    <section class="panel active" id="fives" data-section="fives">
+      <h2>5S / IC-PC Card</h2>
+      <div class="card-grid">
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1qnW6XJACO-sq8CXodYrvLE8lAnzwx3cd1mZiVXpqui0/edit?gid=1520342132#gid=1520342132" target="_blank" rel="noopener">
+          <span class="badge">ACCL</span><span class="doc-title">5S / IC-PC Card</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1QWYvNBI7avM3xZv4_ASQs8_kzFIGM-vP_xYWbb92dVo/edit?gid=233138912#gid=233138912" target="_blank" rel="noopener">
+          <span class="badge">AIL</span><span class="doc-title">5S / IC-PC Card</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1P5m29zELKwYwx2GKlVg-oVNksYGLPL3HuJcP5I4G2F0/edit?gid=233138912#gid=233138912" target="_blank" rel="noopener">
+          <span class="badge">MRML</span><span class="doc-title">5S / IC-PC Card</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/15utYkjy5QKGrSsTvNfJ1SEkil5Gk9_RH2Q1vRKc4Ma0/edit?gid=360403345#gid=360403345" target="_blank" rel="noopener">
+          <span class="badge">AAFL</span><span class="doc-title">5S / IC-PC Card (alt)</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1KqwCRyRvUmRPOFU0q3TH7wuNolh_Odfx4orngqeHeFk/edit?gid=233138912#gid=233138912" target="_blank" rel="noopener">
+          <span class="badge">APFIL</span><span class="doc-title">5S / IC-PC Card</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1h-LASwu9it64lODdl8tin0rGY9et9pCm1nDBSS4P-rc/edit?gid=360403345#gid=360403345" target="_blank" rel="noopener">
+          <span class="badge">AEFML</span><span class="doc-title">5S / IC-PC Card</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1Am_HpFGSb36L4k-d6BRq9_Zx8OdyZRMlo4VcCVojdtk/edit?usp=sharing" target="_blank" rel="noopener">
+          <span class="badge">FAL</span><span class="doc-title">5S / IC-PC Card</span>
+        </a>
+      </div>
+    </section>
 
-    <h2>Process Index</h2>
-    <ul>
-        <li><a href="https://docs.google.com/spreadsheets/d/1my83FEqRMSMHXk8hsarvgnD_yJogZTLGZYQDDQzu/edit#gid=0" target="_blank">acct_process_standardization</a></li>
-    </ul>
+    <section class="panel" id="master" data-section="master">
+      <h2>Combined Master Data</h2>
+      <div class="card-grid">
+        <a class="doc-card wide" href="https://docs.google.com/spreadsheets/d/1niy63FEnRMSMf1Kk8hsarwdnD_u3oqZ1LGZ7QDDOxuq/edit?gid=0#gid=0" target="_blank" rel="noopener">
+          <span class="badge">All SBUs</span><span class="doc-title">Process Index — Kaizen, Problem Solving &amp; Cost Master Data</span>
+        </a>
+        <a class="doc-card wide" href="https://docs.google.com/spreadsheets/d/1LLPJiMiKf7huzmw2eP16xtl2aCtuPimdckgkYTAm8xw/edit?resourcekey=&gid=1776411709#gid=1776411709" target="_blank" rel="noopener">
+          <span class="badge">All SBUs</span><span class="doc-title">5S Master Data</span>
+        </a>
+      </div>
+    </section>
 
-    <h2>5s Master Data</h2>
-    <ul>
-        <li><a href="https://docs.google.com/spreadsheets/d/1LEJkMKff7njrzme2eF16xR2aCtuFjmdsnjeYTAmRsw/edit#gid=resourcekeysAgid=1776411709" target="_blank">5s Master Data</a></li>
-    </ul>
+    <section class="panel" id="cost" data-section="cost">
+      <h2>Cost Calculation</h2>
+      <div class="card-grid">
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1qnW6XJACO-sq8CXodYrvLE8lAnzwx3cd1mZiVXpqui0/edit?gid=1520342132#gid=1520342132" target="_blank" rel="noopener">
+          <span class="badge">ACCL</span><span class="doc-title">Cost Calculation</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1QWYvNBI7avM3xZv4_ASQs8_kzFIGM-vP_xYWbb92dVo/edit?gid=233138912#gid=233138912" target="_blank" rel="noopener">
+          <span class="badge">AIL</span><span class="doc-title">Cost Calculation</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1P5m29zELKwYwx2GKlVg-oVNksYGLPL3HuJcP5I4G2F0/edit?gid=233138912#gid=233138912" target="_blank" rel="noopener">
+          <span class="badge">MRML</span><span class="doc-title">Cost Calculation</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/15utYkjy5QKGrSsTvNfJ1SEkil5Gk9_RH2Q1vRKc4Ma0/edit?gid=360403345#gid=360403345" target="_blank" rel="noopener">
+          <span class="badge">AAFL</span><span class="doc-title">Cost Calculation</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1KqwCRyRvUmRPOFU0q3TH7wuNolh_Odfx4orngqeHeFk/edit?gid=233138912#gid=233138912" target="_blank" rel="noopener">
+          <span class="badge">APFIL</span><span class="doc-title">Cost Calculation</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1h-LASwu9it64lODdl8tin0rGY9et9pCm1nDBSS4P-rc/edit?gid=360403345#gid=360403345" target="_blank" rel="noopener">
+          <span class="badge">AEFML</span><span class="doc-title">Cost Calculation</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1Am_HpFGSb36L4k-d6BRq9_Zx8OdyZRMlo4VcCVojdtk/edit?usp=sharing" target="_blank" rel="noopener">
+          <span class="badge">FAL</span><span class="doc-title">Cost Calculation</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="panel" id="projects" data-section="projects">
+      <h2>Projects (Supabase-backed)</h2>
+      <div class="card-grid">
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1rDKHWCaytVEno78dEFQsSunPqffldTfnJS5lkdjNXxo/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">ACCL</span><span class="doc-title">Qcp — accl_qcp_audit</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1NUeu6bkyDCT_LZsG8LYzqn-QBEakJVjInIrz-Sq9UI0/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">APFIL</span><span class="doc-title">5S — accl_5s_audit_entries</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1K9DzX1AmmmB1cS2vsrXQSzmV1TKKRny0mbNqr4CWn-0/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">AAFL</span><span class="doc-title">Kaizen — accl_improvement_cards</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1iw7QICL45xuf0pYDqVB8q-2T_OCT_4naUbjcVPSs70s/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">AEFML</span><span class="doc-title">Cost Calculation — kaizen_combined</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1XeEqWyyB-MuYwDVFIreqEzDs0Nlqtrwh1KspDR5t3uo/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">MRML</span><span class="doc-title">Problem Solving — accl_problem_solving_cards</span>
+        </a>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1tQh7ALfxddZPdUwRR_gqlBKpvzNbpcolUMZ14lfvFJM/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">AIL</span><span class="doc-title">Project — accl_projects</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="panel" id="qcp" data-section="qcp">
+      <h2>QCP Audit — Live from Supabase</h2>
+
+      <div class="qcp-filters">
+        <div class="qcp-field">
+          <label for="qcpSbu">SBU</label>
+          <select id="qcpSbu">
+            <option value="">All SBUs</option>
+          </select>
+        </div>
+        <div class="qcp-field">
+          <label for="qcpFrom">Audit date — from</label>
+          <input type="date" id="qcpFrom">
+        </div>
+        <div class="qcp-field">
+          <label for="qcpTo">Audit date — to</label>
+          <input type="date" id="qcpTo">
+        </div>
+        <div class="qcp-field">
+          <button id="qcpApply" class="qcp-btn-primary">Apply</button>
+        </div>
+      </div>
+
+      <div class="qcp-quick-filters" id="qcpQuick">
+        <button class="qcp-chip" data-range="mtd">Month to Date</button>
+        <button class="qcp-chip" data-range="1">Last 1 Month</button>
+        <button class="qcp-chip" data-range="3">Last 3 Months</button>
+        <button class="qcp-chip" data-range="6">Last 6 Months</button>
+        <button class="qcp-chip" data-range="12">Last 12 Months</button>
+        <button class="qcp-chip" data-range="all">All Time</button>
+      </div>
+
+      <div class="qcp-status" id="qcpStatus">Loading QCP audit data…</div>
+
+      <div class="qcp-stats" id="qcpStats" style="display:none;">
+        <div class="stat-card">
+          <div class="stat-label">Total QCP Audits</div>
+          <div class="stat-value" id="qcpTotal">—</div>
+        </div>
+        <div class="stat-card stat-pass">
+          <div class="stat-label">Pass %</div>
+          <div class="stat-value" id="qcpPassPct">—</div>
+          <div class="stat-sub" id="qcpPassCount"></div>
+        </div>
+        <div class="stat-card stat-fail">
+          <div class="stat-label">Fail %</div>
+          <div class="stat-value" id="qcpFailPct">—</div>
+          <div class="stat-sub" id="qcpFailCount"></div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="hub-footer">
+    <p>Akij Resource — Opex Document Hub · Last updated <span id="today"></span></p>
+  </footer>
+
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const tabButtons = document.querySelectorAll('.tab-btn');
+  const panels = document.querySelectorAll('.panel');
+  const searchInput = document.getElementById('searchInput');
+  const todayEl = document.getElementById('today');
+
+  if (todayEl) {
+    todayEl.textContent = new Date().toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric'
+    });
+  }
+
+  // Tab switching
+  tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const target = btn.dataset.section;
+
+      tabButtons.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+
+      panels.forEach(p => {
+        p.classList.toggle('active', p.dataset.section === target);
+      });
+
+      searchInput.value = '';
+      filterCards('');
+
+      // Let the QCP module know its panel became visible (lazy-loads data on first view)
+      if (target === 'qcp' && typeof window.initQcpPanel === 'function') {
+        window.initQcpPanel();
+      }
+    });
+  });
+
+  // Live search across all cards, auto-switching to the panel with matches
+  function filterCards(query) {
+    const q = query.trim().toLowerCase();
+    const cards = document.querySelectorAll('.doc-card');
+
+    cards.forEach(card => {
+      const text = card.textContent.toLowerCase();
+      card.classList.toggle('hidden', q !== '' && !text.includes(q));
+    });
+
+    if (q === '') return;
+
+    // Reveal the first panel that has a visible match, so users searching
+    // across sections don't have to click tabs manually.
+    let matched = false;
+    panels.forEach(panel => {
+      const hasVisible = [...panel.querySelectorAll('.doc-card')]
+        .some(c => !c.classList.contains('hidden'));
+      if (hasVisible && !matched) {
+        tabButtons.forEach(b => b.classList.toggle('active', b.dataset.section === panel.dataset.section));
+        panels.forEach(p => p.classList.toggle('active', p === panel));
+        matched = true;
+      }
+    });
+  }
+
+  searchInput.addEventListener('input', (e) => filterCards(e.target.value));
+});
+
+</script>
+<script>
+// QCP Audit dashboard — reads live from Supabase table `qcp_audit`
+// SBU / audit date range filters, with quick "months" presets.
+// Shows: total audit count, pass %, fail %.
+
+(function () {
+  const SUPABASE_URL = 'https://vpwbcuxwxkqvauffqooj.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_1zZ68nxCL0XK0gPQDG5fsg_CqWCCBEU';
+
+  const SBU_OPTIONS = ['AAFL', 'ACCL', 'AEL(Flour)', 'AIL', 'APFIL', 'FAL', 'HRML'];
+
+  let client = null;
+  let initialized = false;
+
+  function getClient() {
+    if (!client && window.supabase) {
+      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    return client;
+  }
+
+  function setStatus(msg, isError) {
+    const el = document.getElementById('qcpStatus');
+    const stats = document.getElementById('qcpStats');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.toggle('error', !!isError);
+    el.style.display = msg ? 'block' : 'none';
+    if (stats) stats.style.display = msg ? 'none' : 'grid';
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+  function toISODate(d) { return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`; }
+
+  function applyQuickRange(kind) {
+    const fromInput = document.getElementById('qcpFrom');
+    const toInput = document.getElementById('qcpTo');
+    const today = new Date();
+
+    if (kind === 'all') {
+      fromInput.value = '';
+      toInput.value = '';
+      return;
+    }
+    if (kind === 'mtd') {
+      const start = new Date(today.getFullYear(), today.getMonth(), 1);
+      fromInput.value = toISODate(start);
+      toInput.value = toISODate(today);
+      return;
+    }
+    const months = parseInt(kind, 10);
+    const start = new Date(today.getFullYear(), today.getMonth() - months + 1, 1);
+    fromInput.value = toISODate(start);
+    toInput.value = toISODate(today);
+  }
+
+  async function runQuery() {
+    const supa = getClient();
+    if (!supa) {
+      setStatus('Could not load the Supabase client library. Check your internet connection and reload.', true);
+      return;
+    }
+
+    const sbu = document.getElementById('qcpSbu').value;
+    const from = document.getElementById('qcpFrom').value;
+    const to = document.getElementById('qcpTo').value;
+
+    setStatus('Loading QCP audit data…');
+
+    function baseQuery() {
+      let q = supa.from('qcp_audit').select('*', { count: 'exact', head: true });
+      if (sbu) q = q.eq('sbu', sbu);
+      if (from) q = q.gte('audit_date', from);
+      if (to) q = q.lte('audit_date', to);
+      return q;
+    }
+
+    try {
+      const [totalRes, passRes, failRes] = await Promise.all([
+        baseQuery(),
+        baseQuery().eq('status', 'Pass'),
+        baseQuery().eq('status', 'Fail'),
+      ]);
+
+      if (totalRes.error) throw totalRes.error;
+      if (passRes.error) throw passRes.error;
+      if (failRes.error) throw failRes.error;
+
+      const total = totalRes.count || 0;
+      const pass = passRes.count || 0;
+      const fail = failRes.count || 0;
+
+      const passPct = total > 0 ? ((pass / total) * 100).toFixed(1) : '0.0';
+      const failPct = total > 0 ? ((fail / total) * 100).toFixed(1) : '0.0';
+
+      document.getElementById('qcpTotal').textContent = total.toLocaleString();
+      document.getElementById('qcpPassPct').textContent = `${passPct}%`;
+      document.getElementById('qcpFailPct').textContent = `${failPct}%`;
+      document.getElementById('qcpPassCount').textContent = `${pass.toLocaleString()} audits`;
+      document.getElementById('qcpFailCount').textContent = `${fail.toLocaleString()} audits`;
+
+      setStatus(total === 0 ? 'No QCP audit records match this filter.' : '');
+    } catch (err) {
+      console.error(err);
+      setStatus(`Could not load QCP audit data: ${err.message || err}`, true);
+    }
+  }
+
+  function wireUp() {
+    const sbuSelect = document.getElementById('qcpSbu');
+    SBU_OPTIONS.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = v;
+      sbuSelect.appendChild(opt);
+    });
+
+    document.getElementById('qcpApply').addEventListener('click', runQuery);
+
+    document.querySelectorAll('.qcp-chip').forEach(chip => {
+      chip.addEventListener('click', () => {
+        document.querySelectorAll('.qcp-chip').forEach(c => c.classList.remove('active'));
+        chip.classList.add('active');
+        applyQuickRange(chip.dataset.range);
+        runQuery();
+      });
+    });
+
+    // Default: month to date
+    const mtdChip = document.querySelector('.qcp-chip[data-range="mtd"]');
+    if (mtdChip) mtdChip.classList.add('active');
+    applyQuickRange('mtd');
+
+    runQuery();
+  }
+
+  // Called by script.js the first time the QCP tab is opened (lazy init,
+  // so the Supabase call only fires if the user actually visits the tab).
+  window.initQcpPanel = function () {
+    if (initialized) return;
+    initialized = true;
+    wireUp();
+  };
+})();
+
+</script>
 </body>
 </html>
