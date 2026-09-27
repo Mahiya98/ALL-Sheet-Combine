@@ -344,15 +344,149 @@ body {
 .stat-card.stat-pass .stat-value { color: #1e8a4c; }
 .stat-card.stat-fail .stat-value { color: #c0392b; }
 
+/* Login gate */
+.hidden { display: none !important; }
+
+.login-overlay {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--navy-light) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.login-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 36px 32px;
+  width: 100%;
+  max-width: 380px;
+  text-align: center;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+}
+
+.login-logo {
+  display: inline-block;
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 13px;
+  letter-spacing: 1px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  margin-bottom: 14px;
+}
+
+.login-card h1 {
+  font-size: 21px;
+  margin: 0 0 6px;
+  color: var(--navy);
+}
+
+.login-sub {
+  font-size: 13.5px;
+  color: var(--text-muted);
+  margin: 0 0 22px;
+}
+
+#loginForm {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#loginForm input {
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  outline: none;
+}
+
+#loginForm input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(47, 111, 237, 0.18);
+}
+
+.login-btn {
+  margin-top: 4px;
+  padding: 12px;
+  font-size: 14px;
+}
+
+.login-note {
+  font-size: 12px;
+  color: #c0392b;
+  min-height: 16px;
+  margin: 14px 0 0;
+}
+
+.user-bar {
+  max-width: 1100px;
+  margin: 14px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 13px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+#userBadge {
+  background: rgba(255, 255, 255, 0.12);
+  padding: 6px 14px;
+  border-radius: 999px;
+}
+
+.logout-btn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  color: #fff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12.5px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+
 
 </style>
 </head>
 <body>
 
+  <!-- Login gate -->
+  <div id="loginOverlay" class="login-overlay">
+    <div class="login-card">
+      <div class="login-logo">OPEX</div>
+      <h1>Opex Document Hub</h1>
+      <p class="login-sub">Sign in with your work email to continue</p>
+      <form id="loginForm">
+        <input type="text" id="loginName" placeholder="Your name" autocomplete="name" required>
+        <input type="email" id="loginEmail" placeholder="you@akijresource.com" autocomplete="email" required>
+        <button type="submit" class="qcp-btn-primary login-btn">Continue</button>
+      </form>
+      <p class="login-note" id="loginNote"></p>
+    </div>
+  </div>
+
+  <div id="appRoot" class="app-root hidden">
+
   <header class="hub-header">
     <div class="header-inner">
       <h1>Opex Document Hub</h1>
       <p class="subtitle">Quick access to 5S / IC-PC cards, master data, cost calculation and project sheets</p>
+    </div>
+    <div class="user-bar">
+      <span id="userBadge"></span>
+      <button id="logoutBtn" class="logout-btn">Sign out</button>
     </div>
     <div class="search-wrap">
       <input type="text" id="searchInput" placeholder="Search a document or SBU (e.g. AAFL, Kaizen)...">
@@ -438,23 +572,23 @@ body {
     <section class="panel" id="projects" data-section="projects">
       <h2>Projects (Supabase-backed)</h2>
       <div class="card-grid">
-        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1rDKHWCaytVEno78dEFQsSunPqffldTfnJS5lkdjNXxo/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
-          <span class="badge">ACCL</span><span class="doc-title">Qcp — accl_qcp_audit</span>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1rDKHWCaytVEno78dEFQsSunPqfIdTfnJS5lkdjNXxo/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">ACCL</span><span class="doc-title">OPEX Project Tracker — ACCL</span>
         </a>
         <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1NUeu6bkyDCT_LZsG8LYzqn-QBEakJVjInIrz-Sq9UI0/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
-          <span class="badge">APFIL</span><span class="doc-title">5S — accl_5s_audit_entries</span>
+          <span class="badge">APFIL</span><span class="doc-title">OPEX Project Tracker — APFIL</span>
         </a>
-        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1K9DzX1AmmmB1cS2vsrXQSzmV1TKKRny0mbNqr4CWn-0/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
-          <span class="badge">AAFL</span><span class="doc-title">Kaizen — accl_improvement_cards</span>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1K9DzX1AmmmB1cS2vsrXQSzmV1TKKRny0mbNgr4CWn-0/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">AAFL</span><span class="doc-title">OPEX Project Tracker — AAFL</span>
         </a>
-        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1iw7QICL45xuf0pYDqVB8q-2T_OCT_4naUbjcVPSs70s/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
-          <span class="badge">AEFML</span><span class="doc-title">Cost Calculation — kaizen_combined</span>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1iw7QlCL45xuf0pYDqVB8q-2T_OCT_4naUbjcVPSs70s/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">AEFML</span><span class="doc-title">OPEX Project Tracker — AEFML</span>
         </a>
         <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1XeEqWyyB-MuYwDVFIreqEzDs0Nlqtrwh1KspDR5t3uo/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
-          <span class="badge">MRML</span><span class="doc-title">Problem Solving — accl_problem_solving_cards</span>
+          <span class="badge">MRML</span><span class="doc-title">OPEX Project Tracker — MRML</span>
         </a>
-        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1tQh7ALfxddZPdUwRR_gqlBKpvzNbpcolUMZ14lfvFJM/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
-          <span class="badge">AIL</span><span class="doc-title">Project — accl_projects</span>
+        <a class="doc-card" href="https://docs.google.com/spreadsheets/d/1tQh7ALfxddZPdUwRR_qgIBKpvzNbpcoIUMZ14lfvFJM/edit?gid=1943254047#gid=1943254047" target="_blank" rel="noopener">
+          <span class="badge">AIL</span><span class="doc-title">OPEX Project Tracker — AIL</span>
         </a>
       </div>
     </section>
@@ -517,7 +651,92 @@ body {
     <p>Akij Resource — Opex Document Hub · Last updated <span id="today"></span></p>
   </footer>
 
+  </div><!-- /appRoot -->
+
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+<script>
+// Lightweight sign-in gate for the Opex Document Hub.
+//
+// IMPORTANT — what this actually does:
+// This is a client-side identity gate only. It asks for a name + work email,
+// remembers it in this browser (localStorage), and then reveals the
+// dashboard of links. It does NOT control who can open the underlying
+// Google Sheets — that access is governed entirely by each sheet's own
+// Google "Share" permissions. Anyone with a link and sheet access can still
+// open it directly, gate or no gate. Use this to personalize the dashboard
+// and keep a lightweight record of who's using it, not as real security.
+// If you need real access control, restrict each Google Sheet itself to
+// "Anyone at Akij Resource with the link" (or specific people) in Google's
+// own sharing settings.
+
+(function () {
+  const STORAGE_KEY = 'opexHubUser';
+  const REQUIRED_DOMAIN = 'akij'; // light check: email must contain this
+
+  const overlay = document.getElementById('loginOverlay');
+  const appRoot = document.getElementById('appRoot');
+  const form = document.getElementById('loginForm');
+  const nameInput = document.getElementById('loginName');
+  const emailInput = document.getElementById('loginEmail');
+  const note = document.getElementById('loginNote');
+  const userBadge = document.getElementById('userBadge');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  function showApp(user) {
+    overlay.classList.add('hidden');
+    appRoot.classList.remove('hidden');
+    userBadge.textContent = `${user.name} · ${user.email}`;
+  }
+
+  function showLogin() {
+    appRoot.classList.add('hidden');
+    overlay.classList.remove('hidden');
+  }
+
+  function getStoredUser() {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  }
+
+  // Restore session on load
+  const existing = getStoredUser();
+  if (existing && existing.email) {
+    showApp(existing);
+  }
+
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim().toLowerCase();
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      note.textContent = 'Please enter a valid email address.';
+      return;
+    }
+    if (!email.includes(REQUIRED_DOMAIN)) {
+      note.textContent = 'Please sign in with your Akij work email.';
+      return;
+    }
+
+    const user = { name, email, signedInAt: new Date().toISOString() };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+    note.textContent = '';
+    showApp(user);
+  });
+
+  logoutBtn.addEventListener('click', () => {
+    localStorage.removeItem(STORAGE_KEY);
+    form.reset();
+    showLogin();
+  });
+})();
+
+</script>
 <script>
 document.addEventListener('DOMContentLoaded', () => {
   const tabButtons = document.querySelectorAll('.tab-btn');
