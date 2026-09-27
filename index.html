@@ -456,6 +456,88 @@ body {
   background: rgba(255, 255, 255, 0.15);
 }
 
+/* Process Standardization tab */
+.qcp-btn-secondary {
+  background: #fff;
+  color: var(--text-muted);
+  border: 1px solid var(--border);
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-size: 13.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.qcp-btn-secondary:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.ps-table-wrap {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+}
+
+.ps-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13.5px;
+}
+
+.ps-table thead th {
+  text-align: left;
+  background: var(--accent-soft);
+  color: var(--navy);
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.ps-table tbody td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border);
+  color: var(--text-main);
+}
+
+.ps-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.ps-table tbody tr:hover {
+  background: #fafbfd;
+}
+
+.ps-status-pill {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.ps-status-completed {
+  background: #e6f6ec;
+  color: #1e8a4c;
+}
+
+.ps-status-inprogress {
+  background: #fff4e0;
+  color: #b9740a;
+}
+
+.ps-status-notstarted {
+  background: #f1f2f5;
+  color: var(--text-muted);
+}
+
+
 
 
 </style>
@@ -499,6 +581,7 @@ body {
     <button class="tab-btn" data-section="cost">Cost Calculation</button>
     <button class="tab-btn" data-section="projects">Projects</button>
     <button class="tab-btn tab-btn-accent" data-section="qcp">QCP Audit</button>
+    <button class="tab-btn tab-btn-accent" data-section="processstd">Process Standard</button>
   </nav>
 
   <main class="content">
@@ -651,6 +734,45 @@ body {
       </div>
     </section>
 
+    <section class="panel" id="processstd" data-section="processstd">
+      <h2>Process Standardization — Live from Supabase</h2>
+
+      <div class="qcp-filters">
+        <div class="qcp-field">
+          <label for="psSbu">SBU</label>
+          <select id="psSbu">
+            <option value="">All SBUs</option>
+          </select>
+        </div>
+        <div class="qcp-field">
+          <label for="psMonth">Month</label>
+          <input type="month" id="psMonth">
+        </div>
+        <div class="qcp-field">
+          <button id="psApply" class="qcp-btn-primary">Apply</button>
+        </div>
+        <div class="qcp-field">
+          <button id="psClear" class="qcp-btn-secondary">Clear</button>
+        </div>
+      </div>
+
+      <div class="qcp-status" id="psStatus">Loading process standardization data…</div>
+
+      <div class="ps-table-wrap" id="psTableWrap" style="display:none;">
+        <table class="ps-table">
+          <thead>
+            <tr>
+              <th>Project Name</th>
+              <th>SBU</th>
+              <th>Start Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="psTableBody"></tbody>
+        </table>
+      </div>
+    </section>
+
   </main>
 
   <footer class="hub-footer">
@@ -774,6 +896,9 @@ document.addEventListener('DOMContentLoaded', () => {
       // Let the QCP module know its panel became visible (lazy-loads data on first view)
       if (target === 'qcp' && typeof window.initQcpPanel === 'function') {
         window.initQcpPanel();
+      }
+      if (target === 'processstd' && typeof window.initProcessStdPanel === 'function') {
+        window.initProcessStdPanel();
       }
     });
   });
@@ -947,6 +1072,141 @@ document.addEventListener('DOMContentLoaded', () => {
   // Called by script.js the first time the QCP tab is opened (lazy init,
   // so the Supabase call only fires if the user actually visits the tab).
   window.initQcpPanel = function () {
+    if (initialized) return;
+    initialized = true;
+    wireUp();
+  };
+})();
+
+</script>
+<script>
+// Process Standardization dashboard — reads live from Supabase table
+// `accl_process_standardization`. SBU + month filters, showing project
+// name and status.
+
+(function () {
+  const SUPABASE_URL = 'https://vpwbcuxwxkqvauffqooj.supabase.co';
+  const SUPABASE_ANON_KEY = 'sb_publishable_1zZ68nxCL0XK0gPQDG5fsg_CqWCCBEU';
+
+  const SBU_OPTIONS = ['AAFL', 'ACCL', 'AEL(Flour)', 'AIL', 'APFIL', 'FAL', 'HRML'];
+
+  const STATUS_CLASS = {
+    'Completed': 'ps-status-completed',
+    'In Progress': 'ps-status-inprogress',
+    'Not Started': 'ps-status-notstarted',
+  };
+
+  let client = null;
+  let initialized = false;
+
+  function getClient() {
+    if (!client && window.supabase) {
+      client = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    }
+    return client;
+  }
+
+  function setStatus(msg, isError) {
+    const el = document.getElementById('psStatus');
+    const wrap = document.getElementById('psTableWrap');
+    if (!el) return;
+    el.textContent = msg;
+    el.classList.toggle('error', !!isError);
+    el.style.display = msg ? 'block' : 'none';
+    if (wrap) wrap.style.display = msg ? 'none' : 'block';
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  function formatDate(d) {
+    if (!d) return '—';
+    const dt = new Date(d + 'T00:00:00');
+    if (isNaN(dt)) return d;
+    return dt.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  }
+
+  async function runQuery() {
+    const supa = getClient();
+    if (!supa) {
+      setStatus('Could not load the Supabase client library. Check your internet connection and reload.', true);
+      return;
+    }
+
+    const sbu = document.getElementById('psSbu').value;
+    const month = document.getElementById('psMonth').value; // "YYYY-MM"
+
+    setStatus('Loading process standardization data…');
+
+    let q = supa
+      .from('accl_process_standardization')
+      .select('project_name, sbu, status, start_date')
+      .order('start_date', { ascending: false });
+
+    if (sbu) q = q.eq('sbu', sbu);
+    if (month) {
+      const [y, m] = month.split('-').map(Number);
+      const start = `${y}-${String(m).padStart(2, '0')}-01`;
+      const nextMonth = m === 12 ? `${y + 1}-01-01` : `${y}-${String(m + 1).padStart(2, '0')}-01`;
+      q = q.gte('start_date', start).lt('start_date', nextMonth);
+    }
+
+    try {
+      const { data, error } = await q;
+      if (error) throw error;
+
+      const tbody = document.getElementById('psTableBody');
+      tbody.innerHTML = '';
+
+      if (!data || data.length === 0) {
+        setStatus('No process standardization projects match this filter.');
+        return;
+      }
+
+      data.forEach(row => {
+        const tr = document.createElement('tr');
+        const statusClass = STATUS_CLASS[row.status] || 'ps-status-notstarted';
+        tr.innerHTML = `
+          <td>${escapeHtml(row.project_name) || '—'}</td>
+          <td>${escapeHtml(row.sbu) || '—'}</td>
+          <td>${formatDate(row.start_date)}</td>
+          <td><span class="ps-status-pill ${statusClass}">${escapeHtml(row.status) || 'Not Started'}</span></td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      setStatus('');
+    } catch (err) {
+      console.error(err);
+      setStatus(`Could not load process standardization data: ${err.message || err}`, true);
+    }
+  }
+
+  function wireUp() {
+    const sbuSelect = document.getElementById('psSbu');
+    SBU_OPTIONS.forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v;
+      opt.textContent = v;
+      sbuSelect.appendChild(opt);
+    });
+
+    document.getElementById('psApply').addEventListener('click', runQuery);
+    document.getElementById('psClear').addEventListener('click', () => {
+      sbuSelect.value = '';
+      document.getElementById('psMonth').value = '';
+      runQuery();
+    });
+
+    runQuery();
+  }
+
+  // Called by script.js the first time the Process Standard tab is opened
+  // (lazy init, so the Supabase call only fires if the user visits the tab).
+  window.initProcessStdPanel = function () {
     if (initialized) return;
     initialized = true;
     wireUp();
